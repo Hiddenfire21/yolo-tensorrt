@@ -3,7 +3,8 @@
 
 #include <memory>
 #include <thread>
-
+#include <fstream>
+using namespace std;
 
 int main()
 {
@@ -30,7 +31,8 @@ int main()
 	config_v4.calibration_image_list_file_txt = "../configs/calibration_images.txt";
 	config_v4.inference_precison =INT8;
 	config_v4.detect_thresh = 0.5;
-
+    //config_v4.batch_size = 2;
+    
 	Config config_v4_tiny;
 	config_v4_tiny.net_type = YOLOV4_TINY;
 	config_v4_tiny.detect_thresh = 0.5;
@@ -48,11 +50,22 @@ int main()
 	config_v5.inference_precison = FP32;
 
 	std::unique_ptr<Detector> detector(new Detector());
-	detector->init(config_v5);
+	detector->init(config_v4);
 	cv::Mat image0 = cv::imread("../configs/dog.jpg", cv::IMREAD_UNCHANGED);
 	cv::Mat image1 = cv::imread("../configs/person.jpg", cv::IMREAD_UNCHANGED);
 	std::vector<BatchResult> batch_res;
 	Timer timer;
+	ofstream outdata;
+	ifstream infile("../configs/class_list.txt");
+	const int SIZE = 90;
+	string classes[SIZE];
+	
+	int count = 0;
+	while ( count < SIZE && infile >> classes[count] )
+	{
+	    count++;
+    }
+	
 	for (;;)
 	{
 		//prepare batch data
@@ -60,7 +73,7 @@ int main()
 		cv::Mat temp0 = image0.clone();
 		cv::Mat temp1 = image1.clone();
 		batch_img.push_back(temp0);
-		//batch_img.push_back(temp1);
+		batch_img.push_back(temp1);
 
 		//detect
 		timer.reset();
@@ -70,16 +83,20 @@ int main()
 		//disp
 		for (int i=0;i<batch_img.size();++i)
 		{
+		    outdata.open("../configs/dog.txt");
 			for (const auto &r : batch_res[i])
 			{
 				std::cout <<"batch "<<i<< " id:" << r.id << " prob:" << r.prob << " rect:" << r.rect << std::endl;
 				cv::rectangle(batch_img[i], r.rect, cv::Scalar(255, 0, 0), 2);
 				std::stringstream stream;
-				stream << std::fixed << std::setprecision(2) << "id:" << r.id << "  score:" << r.prob;
+				stream << std::fixed << std::setprecision(2) << "id:" << classes[r.id] << "  score:" << r.prob;
 				cv::putText(batch_img[i], stream.str(), cv::Point(r.rect.x, r.rect.y - 5), 0, 0.5, cv::Scalar(0, 0, 255), 2);
+				//outdata << r.id << " " << r.prob << " " << r.rect.x -r.rect.width/2 << " "  << r.rect.y -r.rect.height/2 << " " << r.rect.x + r.rect.width/2 << " "<< r.rect.y + r.rect.height/2 << " " << std::endl;
+				outdata << classes[r.id] << " " << r.prob << " " << r.rect.x << " "  << r.rect.y << " " << r.rect.x + r.rect.width << " "<< r.rect.y + r.rect.height << " " << endl;
 			}
+			outdata.close();
 			cv::imshow("image"+std::to_string(i), batch_img[i]);
 		}
-		cv::waitKey(10);
+		cv::waitKey(0);
 	}
 }

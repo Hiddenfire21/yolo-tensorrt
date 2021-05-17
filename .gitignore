@@ -25,3 +25,4 @@ api/
 .ipynb_checkpoints
 *.idea
 Dockerfile
+cmake-build-debug/
