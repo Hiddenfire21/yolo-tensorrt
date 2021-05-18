@@ -46,7 +46,7 @@ struct Config
 	
 	int	gpu_id									= 0;
 
-	std::string calibration_image_list_file_txt = "configs/calibration_images.txt";z
+	std::string calibration_image_list_file_txt = "configs/calibration_images.txt";
 
 };
 

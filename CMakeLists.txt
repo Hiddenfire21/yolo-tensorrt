@@ -33,3 +33,7 @@ target_link_libraries(yolo-trt detector ${OpenCV_LIBS})
 add_executable(yolo-test samples/dir_detector.cpp)	
 target_include_directories(yolo-test PRIVATE modules/ extra/)
 target_link_libraries(yolo-test detector ${OpenCV_LIBS})
+
+add_executable(yolo-batch-test samples/batch_dir_detector.cpp)
+target_include_directories(yolo-batch-test PRIVATE modules/ extra/)
+target_link_libraries(yolo-batch-test detector ${OpenCV_LIBS})

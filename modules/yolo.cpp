@@ -52,6 +52,7 @@ Yolo::Yolo( const NetworkInfo& networkInfo, const InferParams& inferParams) :
 		parseConfigBlocks();
 	}
 	m_EnginePath = networkInfo.data_path + "-" + m_Precision + "-batch" + std::to_string(m_BatchSize) + ".engine";
+	std::cout << "Engine to be loaded from "<< m_EnginePath << std::endl;
 	if (m_Precision == "kFLOAT")
 	{
 		if ("yolov5" == m_NetworkType)
